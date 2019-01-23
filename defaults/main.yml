@@ -1,0 +1,5 @@
+---
+# defaults file for install-nagios-server
+
+nagios_plugins_dir: '/usr/lib64/nagios/plugins/'
+nagios_username: nagios

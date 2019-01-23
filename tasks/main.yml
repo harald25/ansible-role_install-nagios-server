@@ -1,0 +1,92 @@
+---
+# tasks file for nagios-server
+
+
+- name: Install nagios server and plugins
+  yum:
+    name: nagios, nagios-plugins-all, nagios-plugins-nrpe
+    state: present
+
+# Note: python34-setuptools AND python-setuptools must be installed because ansible needs setuptools for the same version of python
+# Ansible is being run as
+- name: Install python3.4
+  yum:
+    name: python34, python34-pip, python34-libs, python34-setuptools, python34-devel, python-setuptools
+    state: present
+
+- name: Install pip
+  easy_install:
+    name: pip
+    state: latest
+
+- name: Install python modules
+  pip:
+    name: requests
+    state: present
+    executable: pip3
+
+- name: Generate the nagios monitoring templates
+  template: src={{ item + ".j2" }}
+            dest=/etc/nagios/conf.d/{{ item }}
+  with_items:
+    - servers.cfg
+    - services.cfg
+  register: nagios_needs_restart
+
+- name: Copy config files to /etc/nagios/objects/
+  copy: src={{ item }} dest=/etc/nagios/objects/{{ item }}
+  with_items:
+    - templates.cfg
+    - localhost.cfg
+  register: nagios_needs_restart
+
+- name: Delete original commands.cfg
+  file:
+    state: absent
+    path: /etc/nagios/objects/commands.cfg
+
+- name: Creates commands directory
+  file: path=/etc/nagios/commands state=directory
+
+- name: Copy command config files to /etc/nagios/commands/
+  copy: src={{ item }} dest=/etc/nagios/commands/{{ item }}
+  with_items:
+    - commands.cfg
+    - nrpe.cfg
+  register: nagios_needs_restart
+
+- name: Generate command config from template
+  template: src={{ item + ".j2" }}
+            dest=/etc/nagios/commands/{{ item }}
+  with_items:
+    - check_nsclient_rest.cfg
+  register: nagios_needs_restart
+
+- name: Copy plugin scripts
+  copy:
+    src: '{{ item }}'
+    dest: '{{ nagios_plugins_dir }}{{ item }}'
+    mode: 0755
+  with_items: check_nsclient_rest.py
+
+- name: Copy nagios main config files
+  copy: src={{ item }} dest=/etc/nagios/{{ item }}
+  with_items:
+    - nagios.cfg
+  register: nagios_needs_restart
+
+- name: Start and enable httpd
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Start and enable nagios
+  systemd:
+    name: nagios
+    state: started
+    enabled: yes
+
+- name: Start nagios service
+  command: systemctl restart nagios.service
+  when: nagios_needs_restart != 0

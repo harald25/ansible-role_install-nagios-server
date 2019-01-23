@@ -1,0 +1,43 @@
+################################################################################
+# NSclient++ REST API commands - Harald Dahl
+################################################################################
+
+define command {
+        command_name  check_nsclient_rest
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} $ARG1$ $ARG2$
+}
+
+define command {
+        command_name  check_nsclient_rest_uptime
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} check_uptime warn=uptime\>$ARG1$\&crit=uptime\>$ARG2$
+}
+
+define command {
+        command_name  check_nsclient_rest_disk
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} check_drivesize drive=$ARG1$\&warn=used\>$ARG2$\&crit=used\>$ARG3$
+}
+
+define command {
+        command_name  check_nsclient_rest_memory
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} check_memory type=$ARG1$\&warn=used\>$ARG2$\&crit=used\>$ARG3$
+}
+
+define command {
+        command_name  check_nsclient_rest_cpu
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} check_cpu time=5m\&time=15\&time=30m\&warn=load\>$ARG1$\&crit=load\>$ARG2$
+}
+
+define command {
+        command_name  check_nsclient_rest_service
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} check_service service=$ARG1$
+}
+
+define command {
+        command_name  check_nsclient_rest_lastinstwinupdates
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} lastinstwinupdates $ARG1$%20$ARG2$
+}
+
+define command {
+        command_name  check_nsclient_rest_autosvc
+        command_line  {{ nagios_plugins_dir }}check_nsclient_rest.py $HOSTADDRESS$ $_HOSTRESTPORT$ nagios {{ nsclient_query_password }} autosvc
+}

@@ -1,0 +1,66 @@
+##### ---------------------------------------- #####
+##### -------------- HOSTGROUPS -------------- #####
+##### ---------------------------------------- #####
+
+{% if linux %}
+# Linux servers
+define hostgroup {
+	hostgroup_name	linux-servers
+  alias						Linux Servers
+	members					{% for item in linux %} {{ item }}, {% endfor %}
+
+}
+{% endif %}
+
+{% if windows %}
+# Windows servers
+define hostgroup {
+	hostgroup_name	windows-servers
+  alias						Windows Servers
+	members					{% for item in windows %} {{ item }}, {% endfor %}
+
+}
+{% endif %}
+
+{% if autosvc %}
+# Windows servers
+define hostgroup {
+	hostgroup_name	autosvc-servers
+  alias						Servers with autosvc check
+	members					{% for item in autosvc %} {{ item }}, {% endfor %}
+
+}
+{% endif %}
+
+{% if lastinst %}
+# Windows servers
+define hostgroup {
+	hostgroup_name	lastinstwinupdates-servers
+  alias						Servers with lastinstwinupdates check
+	members					{% for item in lastinst %} {{ item }}, {% endfor %}
+
+}
+{% endif %}
+
+##### ---------------------------------------- #####
+##### ----------------- HOSTS ---------------- #####
+##### ---------------------------------------- #####
+
+{% for item in groups.get('linux-hosts', []) %}
+define host {
+	use                     generic-host-normal
+	host_name               {{ item }}
+	alias                   {{ item }}
+	address                 {{ hostvars[item].ansible_default_ipv4.address }}
+}
+{% endfor %}
+
+{% for item in groups.get('windows-hosts', []) %}
+define host {
+	use                     generic-host-normal
+	host_name               {{ item }}
+	alias                   {{ item }}
+	address                 {{ hostvars[item]['ansible_facts']['ip_addresses'][0] }}
+	_restport								{{ nsclient_port }}
+}
+{% endfor %}
