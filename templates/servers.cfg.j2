@@ -23,7 +23,7 @@ define hostgroup {
 {% endif %}
 
 {% if autosvc %}
-# Windows servers
+# Server with the autosvc check
 define hostgroup {
 	hostgroup_name	autosvc-servers
   alias						Servers with autosvc check
@@ -33,7 +33,7 @@ define hostgroup {
 {% endif %}
 
 {% if lastinst %}
-# Windows servers
+# Server with the lastinstwinupdates check
 define hostgroup {
 	hostgroup_name	lastinstwinupdates-servers
   alias						Servers with lastinstwinupdates check
